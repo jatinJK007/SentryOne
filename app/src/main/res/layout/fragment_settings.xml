@@ -1,14 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#faf9f6"
     tools:context=".Fragments.SettingsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_height="match_parent">
 
-</FrameLayout>
+        <TextView
+            android:id="@+id/settingsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="112dp"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/poppins_semibold"
+            android:text="Settings"
+            android:textSize="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Switch
+            android:id="@+id/switchDarkMode"
+            android:layout_width="0dp"
+            android:layout_height="35dp"
+            android:paddingStart="7dp"
+            android:text="Enable Dark Mode"
+            android:textSize="18sp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/rounded_card_bg"
+            app:layout_constraintTop_toBottomOf="@id/settingsTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:checked="false" />
+
+        <!-- Error Message TextView (hidden by default) -->
+        <TextView
+            android:id="@+id/tvErrorMessage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="An error occurred: Please check permissions."
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="16sp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/rounded_card_bg"
+            android:paddingEnd="5dp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/switchDarkMode"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Location Access Switch -->
+        <Switch
+            android:id="@+id/switchLocationAccess"
+            android:layout_width="0dp"
+            android:layout_height="35dp"
+            android:paddingStart="7dp"
+            android:text="Allow Location Access"
+            android:textSize="18sp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/rounded_card_bg"
+            android:paddingEnd="5dp"
+            app:layout_constraintTop_toBottomOf="@id/tvErrorMessage"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:checked="true" />
+
+        <!-- Triggering Mode Switch -->
+        <Switch
+            android:id="@+id/switchTriggeringMode"
+            android:layout_width="0dp"
+            android:layout_height="35dp"
+            android:paddingStart="7dp"
+            android:background="@drawable/rounded_card_bg"
+            android:text="Trigger by Volume Buttons (3 times)"
+            android:textSize="18sp"
+            android:layout_marginTop="16dp"
+            android:paddingEnd="5dp"
+            app:layout_constraintTop_toBottomOf="@id/switchLocationAccess"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:checked="true" />
+
+        <!-- Silently Send Message Switch -->
+        <Switch
+            android:id="@+id/switchSilentlySend"
+            android:paddingEnd="5dp"
+            android:layout_width="0dp"
+            android:layout_height="35dp"
+            android:paddingStart="7dp"
+            android:text="Send Message Silently"
+            android:textSize="18sp"
+            android:background="@drawable/rounded_card_bg"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/switchTriggeringMode"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:checked="true" />
+
+        <EditText
+            android:id="@+id/emergencyMsg"
+            android:layout_width="match_parent"
+            android:layout_margin="20dp"
+            android:paddingTop="3dp"
+            android:hint="Enter the Emergency Message"
+            android:paddingStart="7dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="20dp"
+            android:ems="10"
+            android:background="@drawable/rounded_card_bg"
+            android:gravity="start|top"
+            android:inputType="textMultiLine"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.099"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/switchSilentlySend" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="37dp"
+            android:layout_marginTop="8dp"
+            android:text="SAVE"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.627"
+            app:layout_constraintStart_toEndOf="@+id/settingsTitle"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Switch
+            android:id="@+id/switchDialogue"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:paddingStart="7dp"
+            android:text="Show Dialogue Box \nbefore trigerring"
+            android:textSize="18sp"
+            android:background="@drawable/rounded_card_bg"
+            android:layout_marginTop="16dp"
+            android:paddingEnd="5dp"
+            app:layout_constraintTop_toBottomOf="@id/emergencyMsg"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:checked="true" />
+
+        <Switch
+            android:id="@+id/switchShakeDetction"
+            android:layout_width="0dp"
+            android:layout_height="35dp"
+            android:paddingEnd="5dp"
+            android:paddingStart="7dp"
+            android:text="Shake Detection"
+            android:textSize="18sp"
+            android:background="@drawable/rounded_card_bg"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/switchDialogue"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:checked="false" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

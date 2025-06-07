@@ -1,10 +1,8 @@
 package com.example.sentryone
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import com.example.sentryone.Fragments.ContactFragment
 import com.example.sentryone.Fragments.HistoryFragment

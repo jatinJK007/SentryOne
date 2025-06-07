@@ -22,53 +22,93 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/addContact"
+
+    <!--    <androidx.cardview.widget.CardView-->
+<!--        android:id="@+id/addContact"-->
+<!--        android:layout_width="match_parent"-->
+<!--        app:cardCornerRadius="10dp"-->
+<!--        android:layout_height="50dp"-->
+<!--        android:layout_marginTop="40dp"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/textView">-->
+
+<!--        <ImageView-->
+<!--            android:layout_width="30dp"-->
+<!--            android:layout_height="30dp"-->
+<!--            android:layout_marginStart="40dp"-->
+<!--            android:layout_marginTop="10dp"-->
+<!--            android:src="@drawable/person_add_24px" />-->
+
+<!--        <TextView-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginStart="110dp"-->
+<!--            android:layout_marginTop="10dp"-->
+<!--            android:fontFamily="@font/open_sans_medium"-->
+<!--            android:text="Add Contacts"-->
+<!--            android:textSize="24dp" />-->
+
+<!--        <ImageView-->
+<!--            android:layout_width="30dp"-->
+<!--            android:layout_height="30dp"-->
+<!--            android:layout_marginStart="330dp"-->
+<!--            android:layout_marginTop="10dp"-->
+<!--            android:src="@drawable/arrow_forward_ios_24px" />-->
+<!--    </androidx.cardview.widget.CardView>-->
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutAdd"
         android:layout_width="match_parent"
-        app:cardCornerRadius="10dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="40dp"
+        android:layout_height="130dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/rounded_card_bg"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView">
 
-        <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginStart="40dp"
-            android:layout_marginTop="10dp"
-            android:src="@drawable/person_add_24px" />
+        <AutoCompleteTextView
+            android:id="@+id/contactAutoComplete"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:paddingStart="5dp"
+            android:layout_margin="12dp"
+            android:background="@drawable/rounded_card_bg"
+            android:hint="Enter name or number"
+            android:inputType="text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:layout_width="wrap_content"
+
+        <Button
+            android:id="@+id/btnAddContact"
+            android:layout_width="130dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="110dp"
-            android:layout_marginTop="10dp"
-            android:fontFamily="@font/open_sans_medium"
-            android:text="Add Contacts"
-            android:textSize="24dp" />
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#008080"
+            android:text="SAVE"
+            android:textSize="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.461"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/contactAutoComplete" />
 
-        <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginStart="330dp"
-            android:layout_marginTop="10dp"
-            android:src="@drawable/arrow_forward_ios_24px" />
-    </androidx.cardview.widget.CardView>
 
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/contactList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
-        android:layout_marginTop="24dp"
         android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.6"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/addContact"
-        app:layout_constraintVertical_bias="0.036" />
+        app:layout_constraintTop_toBottomOf="@+id/layoutAdd" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
