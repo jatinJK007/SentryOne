@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("com.google.devtools.ksp")
+
 }
 
 android {
@@ -50,10 +52,33 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    val room_version = "2.7.1"
+// Room (using KSP)
+    val roomVersion = "2.6.1" // Or use "2.7.0-alpha01" if you really need it and understand alpha stability
+    // For stable, 2.6.1 is the latest as of my last update.
+    // Check official docs for the absolute latest stable.
+    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion") // For Coroutines and Flow support
 
-    implementation("androidx.room:room-runtime:$room_version")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9")
-    implementation("androidx.fragment:fragment-ktx:1.8.8") // Use the latest version
+    ksp("androidx.room:room-compiler:$roomVersion")
+    // REMOVE: annotationProcessor("androidx.room:room-compiler:$room_version")
+
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3") // Use a recent stable version
+
+    // ViewModel & LiveData (Lifecycle)
+    val lifecycleVersion = "2.6.2" // Or a more recent stable version
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion")
+    // lifecycle-runtime-ktx is often included transitively by other lifecycle artifacts,
+    // but good to be explicit if you use LifecycleScope directly often.
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
+
+
+    // Fragment KTX (includes support for by viewModels(), etc.)
+    implementation("androidx.fragment:fragment-ktx:1.6.2") // Use a recent stable version
+
+//    jetpack datastore dependency to store the app setting
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
+
 
 }
