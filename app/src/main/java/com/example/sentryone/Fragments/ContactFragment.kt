@@ -16,6 +16,8 @@ import com.example.sentryone.viewModels.ContactsViewModel
 import android.Manifest
 import android.util.Log
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.sentryone.Adapters.EmergencyContactAdapter
 import com.example.sentryone.ContactsViewModelFactory
 
 
@@ -25,6 +27,7 @@ class ContactFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: ContactsViewModel by viewModels{ ContactsViewModelFactory(requireActivity().application) }
     private lateinit var contactSuggestions: List<Pair<String, String>> // name, phone
+    private lateinit var emergencyContactAdapter: EmergencyContactAdapter
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +45,8 @@ class ContactFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         checkContactPermission()
+//        recylerViewSetup()
+        rvSetup()
 
         binding.btnAddContact.setOnClickListener {
             // Check if contactSuggestions has been initialized before using it
@@ -61,6 +66,67 @@ class ContactFragment : Fragment() {
                 binding.contactAutoComplete.setText("")
             } else {
                 Toast.makeText(requireContext(), "No matching contact found.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun rvSetup() {
+        emergencyContactAdapter = EmergencyContactAdapter() { contactToDelete ->
+            // This lambda is called when the delete icon on an item is clicked
+            viewModel.delete(contactToDelete)
+            Toast.makeText(context, "${contactToDelete.name} deleted", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.contactList.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = emergencyContactAdapter
+//            setHasFixedSize(true)
+        }
+
+        viewModel.allContacts.observe(viewLifecycleOwner) { contacts ->
+            contacts?.let {
+                emergencyContactAdapter.submitList(it)
+                Log.d("ContactFragment", "Observed emergency contacts: ${it.size}")
+                if (it.isEmpty()) {
+                    binding.contactList.visibility = View.GONE
+                    // Optionally show a "No contacts yet" message
+                    // binding.tvNoContactsMessage.visibility = View.VISIBLE
+                } else {
+                    binding.contactList.visibility = View.VISIBLE
+                    // binding.tvNoContactsMessage.visibility = View.GONE
+                }
+            }
+        }
+
+    }
+
+    private fun recylerViewSetup() {
+        emergencyContactAdapter = EmergencyContactAdapter { contactToDelete ->
+            // This lambda is executed when the delete icon on an item is clicked
+            viewModel.delete(contactToDelete) // Call the ViewModel's delete function
+            Toast.makeText(requireContext(), "Deleted ${contactToDelete.name}", Toast.LENGTH_SHORT)
+                .show()
+        } // Initialize the adapter
+
+        binding.contactList.apply { // Use binding to access your RecyclerView
+            layoutManager = LinearLayoutManager(context) // Set a LayoutManager
+            adapter = emergencyContactAdapter // Set the adapter
+            setHasFixedSize(true) // Optimization if item sizes don't change
+        }
+
+        // Observe the allContacts LiveData from the ViewModel
+        viewModel.allContacts.observe(viewLifecycleOwner) { contacts ->
+            contacts?.let {
+                emergencyContactAdapter.submitList(it) // Update the adapter with new data
+                Log.d("ContactFragment", "Observed emergency contacts: ${it.size}")
+                // Optionally, hide the RecyclerView if the list is empty, show a message
+                if (it.isEmpty()) {
+                    // binding.noContactsMessage.visibility = View.VISIBLE // Example: if you have a TextView for "No contacts"
+                    binding.contactList.visibility = View.GONE
+                } else {
+                    // binding.noContactsMessage.visibility = View.GONE
+                    binding.contactList.visibility = View.VISIBLE
+                }
             }
         }
     }
