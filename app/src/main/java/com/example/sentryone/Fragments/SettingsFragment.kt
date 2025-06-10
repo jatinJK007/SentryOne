@@ -1,60 +1,183 @@
 package com.example.sentryone.Fragments
 
 import android.os.Bundle
+import android.Manifest
+import android.content.pm.PackageManager
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.sentryone.R
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
+import com.example.sentryone.AppSettingsKeys
+import com.example.sentryone.AppSettingsManager
+import com.example.sentryone.databinding.FragmentSettingsBinding
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [SettingsFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class SettingsFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+
+    private lateinit var appSettingsManager: AppSettingsManager
+    private var _binding : FragmentSettingsBinding? = null
+    private val binding get() = _binding!!
+
+    // Request launcher for location permissions
+    private val requestLocationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        // Handle the result of the permission request
+        val granted = permissions.entries.all { it.value }
+        if (granted) {
+            // Permissions granted, you might want to update UI or take action
+            binding.tvErrorMessage.visibility = View.GONE
+            binding.switchLocationAccess.isChecked = true
+        } else {
+            // Permissions denied, update UI or show a message
+            binding.tvErrorMessage.text = "Location permission denied. Features may be limited."
+            binding.tvErrorMessage.visibility = View.VISIBLE
+            binding.switchLocationAccess.isChecked = false
+        }
+        // Save the updated state to DataStore
+        lifecycleScope.launch {
+            appSettingsManager.updateSetting(AppSettingsKeys.LOCATION_ACCESS, granted)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_settings, container, false)
+        _binding= FragmentSettingsBinding.inflate(inflater,container,false)
+        val view = binding.root
+        appSettingsManager = AppSettingsManager(requireContext())
+        setupListeners()
+        observeSettings()
+        return view
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment SettingsFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            SettingsFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    private fun setupListeners() {
+        binding.switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
+            lifecycleScope.launch {
+                appSettingsManager.updateSetting(AppSettingsKeys.DARK_MODE, isChecked)
+                AppCompatDelegate.setDefaultNightMode(
+                    if (isChecked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+                )
+            }
+        }
+
+        binding.switchLocationAccess.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                requestLocationPermissions()
+            } else {
+                // User wants to revoke, update DataStore directly
+                lifecycleScope.launch {
+                    appSettingsManager.updateSetting(AppSettingsKeys.LOCATION_ACCESS, false)
+                    binding.tvErrorMessage.visibility = View.GONE // Hide error if user manually unchecks
                 }
             }
+        }
+
+        binding.switchTriggeringMode.setOnCheckedChangeListener { _, isChecked ->
+            lifecycleScope.launch {
+                appSettingsManager.updateSetting(AppSettingsKeys.TRIGGERING_MODE, isChecked)
+            }
+        }
+
+        binding.switchSilentlySend.setOnCheckedChangeListener { _, isChecked ->
+            lifecycleScope.launch {
+                appSettingsManager.updateSetting(AppSettingsKeys.SILENTLY_SEND, isChecked)
+            }
+        }
+
+        binding.switchDialogue.setOnCheckedChangeListener { _, isChecked ->
+            lifecycleScope.launch {
+                appSettingsManager.updateSetting(AppSettingsKeys.SHOW_DIALOGUE, isChecked)
+            }
+        }
+
+        binding.switchShakeDetction.setOnCheckedChangeListener { _, isChecked ->
+            lifecycleScope.launch {
+                appSettingsManager.updateSetting(AppSettingsKeys.SHAKE_DETECTION, isChecked)
+            }
+        }
+
+        // Save button listener
+        binding.btnSave.setOnClickListener { // Use binding.btnSave
+            val emergencyMessage = binding.emergencyMsg.text.toString() // Use binding.emergencyMsg
+            lifecycleScope.launch {
+                appSettingsManager.updateEmergencyMessage(emergencyMessage)
+//                 Toast.makeText(requireContext(), "Settings saved!", Toast.LENGTH_SHORT).show()
+                Snackbar.make(requireContext(),requireView(), "Settings saved!", Snackbar.LENGTH_SHORT).show()
+            }
+        }
     }
+
+    private fun observeSettings() {
+        lifecycleScope.launch {
+            appSettingsManager.appSettingsFlow.collectLatest { settings ->
+                // Update UI based on the latest settings using binding
+                binding.switchDarkMode.isChecked = settings.darkMode
+                binding.switchLocationAccess.isChecked = settings.locationAccess
+                binding.switchTriggeringMode.isChecked = settings.triggeringMode
+                binding.switchSilentlySend.isChecked = settings.silentlySend
+                binding.emergencyMsg.setText(settings.emergencyMessage) // Use binding.emergencyMsg
+                binding.switchDialogue.isChecked = settings.showDialogue
+                binding.switchShakeDetction.isChecked = settings.shakeDetection
+                binding.switchFlashTrigger.isChecked = settings.flashTrigger
+                binding.switchHepticFeedback.isChecked = settings.hepticFeedback
+
+
+                // Handle initial state of location access and error message
+                if (settings.locationAccess && !checkLocationPermissions()) {
+                    binding.tvErrorMessage.text = "Location permission needed. Please grant it."
+                    binding.tvErrorMessage.visibility = View.VISIBLE
+                    binding.switchLocationAccess.isChecked = false // Uncheck if permission is not truly granted
+                } else {
+                    binding.tvErrorMessage.visibility = View.GONE
+                }
+            }
+        }
+    }
+
+    private fun checkLocationPermissions(): Boolean {
+        val fineLocationGranted = ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        val coarseLocationGranted = ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        return fineLocationGranted && coarseLocationGranted
+    }
+
+    private fun requestLocationPermissions() {
+        if (!checkLocationPermissions()) {
+            requestLocationPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        } else {
+            // Permissions are already granted, update DataStore
+            lifecycleScope.launch {
+                appSettingsManager.updateSetting(AppSettingsKeys.LOCATION_ACCESS, true)
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
 }
