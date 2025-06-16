@@ -6,7 +6,9 @@
         <item name="colorOnPrimary">@color/text_color_primary</item>
         <item name="colorSecondary">@color/accent_color</item>
         <item name="colorSecondaryVariant">@color/accent_color</item>
-        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorOnSecondary">@color/text_color_primary</item>
+        <item name="colorSurface">@color/background_primary</item>
+        <item name="colorOnSurface">@color/text_color_primary</item>
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <item name="android:windowBackground">@color/background_primary</item>
     </style>

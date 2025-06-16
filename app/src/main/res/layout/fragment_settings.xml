@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#faf9f6"
+    android:background="@color/background_primary"
     tools:context=".Fragments.SettingsFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -108,7 +108,7 @@
             android:id="@+id/emergencyMsg"
             android:layout_width="match_parent"
             android:layout_margin="20dp"
-            android:paddingTop="3dp"
+            android:padding="5dp"
             android:hint="Enter the Emergency Message"
             android:paddingStart="7dp"
             android:layout_height="100dp"
@@ -123,9 +123,10 @@
             app:layout_constraintTop_toBottomOf="@+id/switchSilentlySend" />
 
         <Button
+            android:id="@+id/btnSave"
             android:layout_width="wrap_content"
             android:layout_height="37dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="6dp"
             android:text="SAVE"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.627"
@@ -162,6 +163,34 @@
             app:layout_constraintEnd_toEndOf="parent"
             tools:checked="false" />
 
+        <Switch
+            android:id="@+id/switchFlashTrigger"
+            android:layout_width="0dp"
+            android:layout_height="35dp"
+            android:paddingEnd="5dp"
+            android:paddingStart="7dp"
+            android:text="Flash Trigger "
+            android:textSize="18sp"
+            android:background="@drawable/rounded_card_bg"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/switchShakeDetction"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:checked="false" />
+        <Switch
+            android:id="@+id/switchHepticFeedback"
+            android:layout_width="0dp"
+            android:layout_height="35dp"
+            android:paddingEnd="5dp"
+            android:paddingStart="7dp"
+            android:text="Heptic Feedback "
+            android:textSize="18sp"
+            android:background="@drawable/rounded_card_bg"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/switchFlashTrigger"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:checked="true" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

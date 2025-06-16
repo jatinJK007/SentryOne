@@ -29,7 +29,6 @@ class SettingsFragment : Fragment() {
     private val requestLocationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        // Handle the result of the permission request
         val granted = permissions.entries.all { it.value }
         if (granted) {
             // Permissions granted, you might want to update UI or take action
@@ -64,6 +63,7 @@ class SettingsFragment : Fragment() {
     }
 
     private fun setupListeners() {
+        // Listener for Dark Mode switch
         binding.switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
             lifecycleScope.launch {
                 appSettingsManager.updateSetting(AppSettingsKeys.DARK_MODE, isChecked)
@@ -73,6 +73,7 @@ class SettingsFragment : Fragment() {
             }
         }
 
+        // Listener for Location Access switch
         binding.switchLocationAccess.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 requestLocationPermissions()
@@ -85,37 +86,54 @@ class SettingsFragment : Fragment() {
             }
         }
 
+        // Listener for Triggering Mode switch
         binding.switchTriggeringMode.setOnCheckedChangeListener { _, isChecked ->
             lifecycleScope.launch {
                 appSettingsManager.updateSetting(AppSettingsKeys.TRIGGERING_MODE, isChecked)
             }
         }
 
+        // Listener for Silently Send switch
         binding.switchSilentlySend.setOnCheckedChangeListener { _, isChecked ->
             lifecycleScope.launch {
                 appSettingsManager.updateSetting(AppSettingsKeys.SILENTLY_SEND, isChecked)
             }
         }
 
+        // Listener for Show Dialogue switch
         binding.switchDialogue.setOnCheckedChangeListener { _, isChecked ->
             lifecycleScope.launch {
                 appSettingsManager.updateSetting(AppSettingsKeys.SHOW_DIALOGUE, isChecked)
             }
         }
 
+        // Listener for Shake Detection switch
         binding.switchShakeDetction.setOnCheckedChangeListener { _, isChecked ->
             lifecycleScope.launch {
                 appSettingsManager.updateSetting(AppSettingsKeys.SHAKE_DETECTION, isChecked)
             }
         }
 
+        // Listener for Flash Trigger switch - ADDED THIS ONE
+        binding.switchFlashTrigger.setOnCheckedChangeListener { _, isChecked ->
+            lifecycleScope.launch {
+                appSettingsManager.updateSetting(AppSettingsKeys.FLASH_TRIGGER, isChecked)
+            }
+        }
+
+        // Listener for Heptic Feedback switch - ADDED THIS ONE
+        binding.switchHepticFeedback.setOnCheckedChangeListener { _, isChecked ->
+            lifecycleScope.launch {
+                appSettingsManager.updateSetting(AppSettingsKeys.HEPTIC_FEEDBACK, isChecked)
+            }
+        }
+
         // Save button listener
-        binding.btnSave.setOnClickListener { // Use binding.btnSave
-            val emergencyMessage = binding.emergencyMsg.text.toString() // Use binding.emergencyMsg
+        binding.btnSave.setOnClickListener {
+            val emergencyMessage = binding.emergencyMsg.text.toString()
             lifecycleScope.launch {
                 appSettingsManager.updateEmergencyMessage(emergencyMessage)
-//                 Toast.makeText(requireContext(), "Settings saved!", Toast.LENGTH_SHORT).show()
-                Snackbar.make(requireContext(),requireView(), "Settings saved!", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(requireView(), "Settings saved!", Snackbar.LENGTH_SHORT).show()
             }
         }
     }

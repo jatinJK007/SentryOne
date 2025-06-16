@@ -48,6 +48,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.preference)
+    implementation(libs.play.services.location)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -80,5 +81,6 @@ dependencies {
 //    jetpack datastore dependency to store the app setting
     implementation("androidx.datastore:datastore-preferences:1.1.7")
 
-
+//    material component dependency
+    implementation("com.google.android.material:material:1.14.0-alpha01")
 }

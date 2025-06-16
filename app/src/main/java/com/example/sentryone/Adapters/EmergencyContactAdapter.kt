@@ -18,7 +18,6 @@ class EmergencyContactAdapter(private val onDeleteClick: (EmergencyContact) -> U
         val tvContactName: TextView = itemView.findViewById(R.id.tvContactName)
         val tvPhoneNumber: TextView = itemView.findViewById(R.id.tvPhoneNumber)
         val btnDel : ImageButton = itemView.findViewById(R.id.btnDeleteContact)
-        // Add more views if your item_emergency_contact.xml has them
     }
 
     // Called when RecyclerView needs a new ViewHolder
@@ -49,4 +48,8 @@ class EmergencyContactAdapter(private val onDeleteClick: (EmergencyContact) -> U
         notifyDataSetChanged() // Notifies the adapter that the data set has changed
         // For better performance with large lists, consider using DiffUtil
     }
-}
+
+//    added via swipe to del functionality
+    fun getItemAt(position: Int): EmergencyContact {
+        return contacts[position]
+    }}

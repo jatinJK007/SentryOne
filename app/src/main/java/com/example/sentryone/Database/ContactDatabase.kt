@@ -15,21 +15,17 @@ abstract class ContactDatabase : RoomDatabase(){
         private var INSTANCE : ContactDatabase? = null
         fun getDatabase(context: Context): ContactDatabase {
 
-            Log.d("TAG", "getDatabase: databse is about to create")
             return INSTANCE ?: synchronized(this) {
-                Log.d("TAG", "getDatabase: in the process of making db ")
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     ContactDatabase::class.java,
                     "emergency_db"
                 )
                     .build()
-//                    .also { INSTANCE = it }
                 INSTANCE = instance
                 instance
             }
             Log.d("TAG", "getDatabase: db created ")
-
         }
     }
 }

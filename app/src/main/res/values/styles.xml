@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme_Material3_AlertDialog_Centered" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">@color/text_color_primary</item>
+    </style>
+
+</resources>

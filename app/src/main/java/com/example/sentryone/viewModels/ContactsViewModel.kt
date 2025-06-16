@@ -10,12 +10,13 @@ import com.example.sentryone.Database.EmergencyContact
 import kotlinx.coroutines.launch
 
 class ContactsViewModel (application: Application) : AndroidViewModel(application) {
+//    we have used AndroidViewModel to get the application context
     private val dao = ContactDatabase.getDatabase(application).contactDao()
+//    gets the dao from the database and let viewModel communicate with DB
 
+//    we have launched coroutines to perform database operations as they can't be done on main thread
     fun insert(contact: EmergencyContact) = viewModelScope.launch {
-        Log.d("TAGviewmodel",   "insert: in contact viewmodel the issue must be here ")
         dao.insert(contact)
-        Log.d("TAGvieemodel", "insert: the num is inserted in db ")
     }
 
     fun delete(contact: EmergencyContact) = viewModelScope.launch{
@@ -23,4 +24,5 @@ class ContactsViewModel (application: Application) : AndroidViewModel(applicatio
     }
 
     val allContacts: LiveData<List<EmergencyContact>> = dao.getAll()
+//    after every changes have made the LiveData updates it and stores in a variable of list of EmergencyContact
 }
