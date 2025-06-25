@@ -87,11 +87,11 @@ class SettingsFragment : Fragment() {
         }
 
         // Listener for Triggering Mode switch
-        binding.switchTriggeringMode.setOnCheckedChangeListener { _, isChecked ->
-            lifecycleScope.launch {
-                appSettingsManager.updateSetting(AppSettingsKeys.TRIGGERING_MODE, isChecked)
-            }
-        }
+//        binding.switchTriggeringMode.setOnCheckedChangeListener { _, isChecked ->
+//            lifecycleScope.launch {
+//                appSettingsManager.updateSetting(AppSettingsKeys.TRIGGERING_MODE, isChecked)
+//            }
+//        }
 
         // Listener for Silently Send switch
         binding.switchSilentlySend.setOnCheckedChangeListener { _, isChecked ->
@@ -144,7 +144,7 @@ class SettingsFragment : Fragment() {
                 // Update UI based on the latest settings using binding
                 binding.switchDarkMode.isChecked = settings.darkMode
                 binding.switchLocationAccess.isChecked = settings.locationAccess
-                binding.switchTriggeringMode.isChecked = settings.triggeringMode
+//                binding.switchTriggeringMode.isChecked = settings.triggeringMode
                 binding.switchSilentlySend.isChecked = settings.silentlySend
                 binding.emergencyMsg.setText(settings.emergencyMessage) // Use binding.emergencyMsg
                 binding.switchDialogue.isChecked = settings.showDialogue

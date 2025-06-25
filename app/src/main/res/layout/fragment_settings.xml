@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/background_primary"
     tools:context=".Fragments.SettingsFragment">
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -68,15 +69,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/open_sans_medium"
-            android:text="Enable Shake detection to trigger\n an Emergency ALert"
+            android:text="Enable Shake detection to trigger\nan Emergency Alert"
             android:textColor="@color/stroke_color"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/shakeTv02" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/switchShakeDetction"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:thumb="@drawable/custom_thumb"
+            app:track="@drawable/custom_track"
+            app:showText="true"
+            android:textOn="on"
+            android:textOff="off"
             android:layout_marginTop="54dp"
             android:layout_marginEnd="16dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -113,15 +119,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/open_sans_medium"
-            android:text="Enable Dark Mode\n ajkdhadhjkahdjkadhajkdh"
+            android:text="Enable Dark Mode\nfor use in night"
             android:textColor="@color/stroke_color"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/darkTv02" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/switchDarkMode"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="84dp"
             android:layout_marginEnd="16dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -143,6 +149,20 @@
             app:layout_constraintTop_toBottomOf="@+id/darkDesc" />
 
         <TextView
+            android:id="@+id/tvErrorMessage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="An error occurred: Please check permissions."
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="16sp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/rounded_card_bg"
+            android:paddingEnd="5dp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/locationTv01"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+        <TextView
             android:id="@+id/locationTv02"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -159,15 +179,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/open_sans_medium"
-            android:text="Enable Location Permission \n for accurate Location access"
+            android:text="Enable Location Permission \nfor accurate Location access"
             android:textColor="@color/stroke_color"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/locationTv02" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/switchLocationAccess"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="84dp"
             android:layout_marginEnd="16dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -175,6 +195,35 @@
             app:layout_constraintStart_toEndOf="@+id/locationDesc"
             app:layout_constraintTop_toBottomOf="@+id/switchDarkMode" />
 
+        <TextView
+            android:id="@+id/alertTv01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Alert Message"
+            android:layout_marginTop="18dp"
+            android:textStyle="bold"
+            android:fontFamily="@font/poppins_semibold"
+            android:textSize="18dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/locationDesc"/>
+
+        <EditText
+            android:id="@+id/emergencyMsg"
+            android:layout_width="match_parent"
+            android:layout_margin="20dp"
+            android:paddingTop="3dp"
+            android:hint="Enter the Emergency Message"
+            android:paddingStart="7dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="20dp"
+            android:ems="10"
+            android:background="@drawable/rounded_card_bg"
+            android:gravity="start|top"
+            android:inputType="textMultiLine"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.099"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/alertTv01" />
 
         <TextView
             android:id="@+id/silentSendTv01"
@@ -186,7 +235,7 @@
             android:textSize="18dp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/locationDesc" />
+            app:layout_constraintTop_toBottomOf="@+id/emergencyMsg" />
 
         <TextView
             android:id="@+id/silentSendTv02"
@@ -205,67 +254,158 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/open_sans_medium"
-            android:text="Enable silent send to send the\n location without any notification"
+            android:text="Enable silent send to send the\nlocation without any notification"
             android:textColor="@color/stroke_color"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/silentSendTv02" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/switchSilentlySend"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginTop="84dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="230dp"
             android:layout_marginEnd="16dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.916"
+            app:layout_constraintHorizontal_bias="0.894"
             app:layout_constraintStart_toEndOf="@+id/silentSendDesc"
             app:layout_constraintTop_toBottomOf="@+id/switchLocationAccess" />
 
         <TextView
-            android:id="@+id/triggerTv01"
+            android:id="@+id/dialogueTv01"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:fontFamily="@font/poppins_semibold"
-            android:text="Slent Send"
+            android:text="Display Dialogue"
             android:textSize="18dp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/locationDesc" />
+            app:layout_constraintTop_toBottomOf="@+id/silentSendDesc" />
 
         <TextView
-            android:id="@+id/triggerTv02"
+            android:id="@+id/dialogueTv02"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:fontFamily="@font/poppins_semibold"
-            android:text="Enable Silently Send"
+            android:text="Enable Dialogue box"
             android:textSize="14dp"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/silentSendTv01" />
+            app:layout_constraintTop_toBottomOf="@+id/dialogueTv01" />
 
         <TextView
-            android:id="@+id/triggerDesc"
+            android:id="@+id/dialogueDesc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/open_sans_medium"
-            android:text="Enable silent send to send the\n location without any notification"
+            android:text="Enable to display the\ndialogue box before Trigger"
             android:textColor="@color/stroke_color"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/silentSendTv02" />
+            app:layout_constraintTop_toBottomOf="@+id/dialogueTv02" />
 
         <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/switchTriggeringMode"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:id="@+id/switchDialogue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="84dp"
             android:layout_marginEnd="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.916"
-            app:layout_constraintStart_toEndOf="@+id/silentSendDesc"
-            app:layout_constraintTop_toBottomOf="@+id/switchLocationAccess" />
+            app:layout_constraintStart_toEndOf="@+id/dialogueDesc"
+            app:layout_constraintTop_toBottomOf="@+id/switchSilentlySend" />
+
+        <TextView
+            android:id="@+id/flashTv01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:fontFamily="@font/poppins_semibold"
+            android:text="Flash Trigger"
+            android:textSize="18dp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dialogueDesc" />
+
+        <TextView
+            android:id="@+id/flashTv02"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/poppins_semibold"
+            android:text="Enable Flash Trigger"
+            android:textSize="14dp"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/flashTv01" />
+
+        <TextView
+            android:id="@+id/flashDesc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/open_sans_medium"
+            android:text="Enable to trigger Flash\nwhile sending SOS message"
+            android:textColor="@color/stroke_color"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/flashTv02" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switchFlashTrigger"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.916"
+            app:layout_constraintStart_toEndOf="@+id/flashDesc"
+            app:layout_constraintTop_toBottomOf="@+id/switchDialogue" />
+
+        <TextView
+            android:id="@+id/hapticTv01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:fontFamily="@font/poppins_semibold"
+            android:text="Haptic Feedback"
+            android:textSize="18dp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/flashDesc" />
+
+        <TextView
+            android:id="@+id/hapticTv02"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/poppins_semibold"
+            android:text="Enable Haptic Feedback"
+            android:textSize="14dp"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/hapticTv01" />
+
+        <TextView
+            android:id="@+id/hapticDesc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/open_sans_medium"
+            android:text="Enable for Haptic feedback\nwhile sending SOS message"
+            android:textColor="@color/stroke_color"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/hapticTv02" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switchHepticFeedback"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.916"
+            app:layout_constraintStart_toEndOf="@+id/hapticDesc"
+            app:layout_constraintTop_toBottomOf="@+id/switchFlashTrigger" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
