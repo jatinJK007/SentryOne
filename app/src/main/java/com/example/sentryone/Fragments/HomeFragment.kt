@@ -1,7 +1,10 @@
 package com.example.sentryone.Fragments
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -31,11 +34,13 @@ import com.example.sentryone.ContactsViewModelFactory
 import com.example.sentryone.R
 import com.example.sentryone.databinding.FragmentHomeBinding
 import com.example.sentryone.viewModels.ContactsViewModel
+import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -45,7 +50,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.location.Location
 
 
@@ -62,6 +66,7 @@ class HomeFragment : Fragment() {
     // For Shake Detection
     private var sensorManager: SensorManager? = null
     private var accelerometer: Sensor? = null
+
     // Shake detection threshold and debounce
     private val SHAKE_THRESHOLD_GRAVITY = 2.7f
     private val SHAKE_SLOP_TIME_MS = 500
@@ -75,9 +80,14 @@ class HomeFragment : Fragment() {
 
     // For Location
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var locationRequest: LocationRequest // Defines parameters for location updates
-    private var locationCallback: LocationCallback? = null // Receives location updates
-    private var sendingLocationSosJob: Job? = null // Manages the location fetching coroutine and its timeout
+    // LocationRequest for SOS (high accuracy, single shot concept with timeout)
+    private lateinit var sosLocationRequest: LocationRequest
+    // LocationRequest for UI display (lower frequency, continuous updates)
+    private lateinit var displayLocationRequest: LocationRequest
+
+    private var sosLocationCallback: LocationCallback? = null // Receives location updates for SOS
+    private var displayLocationCallback: LocationCallback? = null // Receives location updates for UI display
+    private var sendingLocationSosJob: Job? = null // Manages the location fetching coroutine and its timeout for SOS
 
     // Unified permission launcher for all necessary permissions
     private val requestPermissionsLauncher = registerForActivityResult(
@@ -101,7 +111,7 @@ class HomeFragment : Fragment() {
             Log.d("HomeFragment", "SMS permission granted.")
             // If location access is enabled and granted, fetch location first
             if (settings.locationAccess && allRequiredLocationGranted) {
-                fetchLocationAndSendSos(settings)
+                checkLocationSettingsAndFetchSosLocation(settings)
             } else {
                 // Otherwise, send basic SOS message (with or without location if denied/not enabled)
                 val message = settings.emergencyMessage.ifEmpty { "Emergency! I need help!" }
@@ -118,15 +128,21 @@ class HomeFragment : Fragment() {
             Log.w("HomeFragment", "Location permissions denied.")
         } else if (settings.locationAccess && allRequiredLocationGranted) {
             Snackbar.make(requireView(), "Location permissions granted!", Snackbar.LENGTH_SHORT).show()
+            // If location permissions are just granted, start display updates
+            startLocationUpdatesForDisplay()
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Initialize LocationRequest here as it's a good place for fixed configurations
-        locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000) // 5 seconds interval
+        sosLocationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000) // 5 seconds interval for SOS
             .setWaitForAccurateLocation(false)
             .setMinUpdateIntervalMillis(2000) // Minimum 2 seconds interval
+            .build()
+
+        displayLocationRequest = LocationRequest.Builder(Priority.PRIORITY_BALANCED_POWER_ACCURACY, 10000) // 10 seconds interval for display
+            .setMinUpdateIntervalMillis(5000) // Minimum 5 seconds interval
             .build()
     }
 
@@ -156,6 +172,9 @@ class HomeFragment : Fragment() {
         }
         setupSosButton()
         observeAppSettings()
+
+        // Start location updates for display as soon as the view is created
+        startLocationUpdatesForDisplay()
     }
 
     private fun setupSosButton() {
@@ -225,7 +244,6 @@ class HomeFragment : Fragment() {
         if (settings.flashTrigger) {
             blinkFlashlight()
         }
-
         // Determine required permissions based on settings
         val permissionsToRequest = mutableListOf(Manifest.permission.SEND_SMS)
         if (settings.locationAccess) {
@@ -287,9 +305,82 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // Function to actively fetch location and then send the SOS message
+    // New function to start location updates for UI display
+    @SuppressLint("MissingPermission") // Permissions checked by callers
+    private fun startLocationUpdatesForDisplay() {
+        // Only start if permissions are granted
+        val hasFineLocation = ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        val hasCoarseLocation = ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (!hasFineLocation && !hasCoarseLocation) {
+            Log.w("HomeFragment", "Location permissions not granted for display updates.")
+            setDetails(null) // Clear display if no permissions
+            return
+        }
+
+        // Remove existing callback to avoid multiple listeners if called again
+        displayLocationCallback?.let {
+            fusedLocationClient.removeLocationUpdates(it)
+            Log.d("HomeFragment", "Removed existing display location callback.")
+        }
+
+        displayLocationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                locationResult.lastLocation?.let { location ->
+                    Log.d("HomeFragment", "Display Location received: ${location.latitude}, ${location.longitude}")
+                    setDetails(location) // Update UI with latest location
+                } ?: run {
+                    Log.w("HomeFragment", "Display locationResult.lastLocation is null.")
+                }
+            }
+        }
+        fusedLocationClient.requestLocationUpdates(displayLocationRequest, displayLocationCallback!!, requireContext().mainLooper)
+        Log.d("HomeFragment", "Started location updates for UI display.")
+    }
+
+    // Function to check location settings and then fetch location for SOS
+    private fun checkLocationSettingsAndFetchSosLocation(settings: AppSettings) {
+        val locationSettingsRequest = LocationSettingsRequest.Builder()
+            .addLocationRequest(sosLocationRequest)
+            .setAlwaysShow(true) // Show the dialog even if the settings are adequate
+            .build()
+
+        val settingsClient = LocationServices.getSettingsClient(requireActivity())
+        settingsClient.checkLocationSettings(locationSettingsRequest)
+            .addOnSuccessListener { locationSettingsResponse ->
+                // Location settings are satisfied. Proceed to request location updates.
+                Log.d("HomeFragment", "Location settings are adequate. Requesting SOS location updates.")
+                fetchSosLocation(settings)
+            }
+            .addOnFailureListener { exception ->
+                if (exception is ResolvableApiException) {
+                    try {
+                        // Show the dialog by calling startResolutionForResult()
+                        // and check the result in onActivityResult().
+                        exception.startResolutionForResult(requireActivity(), REQUEST_CHECK_SETTINGS)
+                    } catch (sendEx: IntentSender.SendIntentException) {
+                        // Ignore the error.
+                        Log.e("HomeFragment", "Error showing location settings dialog: ${sendEx.message}")
+                    }
+                } else {
+                    Log.e("HomeFragment", "Location settings check failed: ${exception.message}")
+                    Snackbar.make(requireView(), "Location services are not enabled or correctly configured. Sending SOS without location.", Snackbar.LENGTH_LONG).show()
+                    sendSosWithLocation(null, settings) // Send without location on critical failure
+                    sendingLocationSosJob?.cancel()
+                }
+            }
+    }
+
+
+    // Function to actively fetch location for SOS message
     @SuppressLint("MissingPermission") // Suppress lint here as permission is checked by callers
-    private fun fetchLocationAndSendSos(settings: AppSettings) {
+    private fun fetchSosLocation(settings: AppSettings) {
         // Cancel any previous location job to ensure only one is active
         sendingLocationSosJob?.cancel()
 
@@ -303,18 +394,18 @@ class HomeFragment : Fragment() {
             var locationReceived = false
 
             // Define the LocationCallback to receive updates
-            locationCallback = object : LocationCallback() {
+            sosLocationCallback = object : LocationCallback() {
                 override fun onLocationResult(locationResult: LocationResult) {
                     locationResult.lastLocation?.let { location ->
                         if (!locationReceived) { // Process only the first valid location
                             foundLocation = location
                             locationReceived = true
-                            Log.d("HomeFragment", "Location received: ${location.latitude}, ${location.longitude}")
+                            Log.d("HomeFragment", "SOS Location received: ${location.latitude}, ${location.longitude}")
                             // Stop updates as soon as a location is found
-                            fusedLocationClient.removeLocationUpdates(this) // 'this' refers to locationCallback
+                            fusedLocationClient.removeLocationUpdates(this) // 'this' refers to sosLocationCallback
                             snackbar.dismiss()
                             sendSosWithLocation(foundLocation, settings) // Call helper to send SMS
-                            setDetails(foundLocation)
+                            // No need to call setDetails here, as displayLocationCallback handles UI updates
                             sendingLocationSosJob?.cancel() // Cancel the job once location is processed
                         }
                     }
@@ -322,7 +413,7 @@ class HomeFragment : Fragment() {
             }
 
             // Request location updates
-            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback!!, requireContext().mainLooper)
+            fusedLocationClient.requestLocationUpdates(sosLocationRequest, sosLocationCallback!!, requireContext().mainLooper)
 
             // Implement a timeout for location acquisition
             val LOCATION_TIMEOUT_MS = 10000L // 10 seconds timeout for getting a location
@@ -330,8 +421,10 @@ class HomeFragment : Fragment() {
 
             // If we reach here and haven't received a location yet (i.e., timed out)
             if (!locationReceived) {
-                Log.w("HomeFragment", "Location request timed out after $LOCATION_TIMEOUT_MS ms. Sending SOS without location.")
-                fusedLocationClient.removeLocationUpdates(locationCallback!!) // Remove updates if timed out
+                Log.w("HomeFragment", "SOS Location request timed out after $LOCATION_TIMEOUT_MS ms. Sending SOS without location.")
+                sosLocationCallback?.let {
+                    fusedLocationClient.removeLocationUpdates(it) // Remove updates if timed out
+                }
                 snackbar.dismiss()
                 Snackbar.make(requireView(), "Could not get precise location in time.", Snackbar.LENGTH_LONG).show()
                 sendSosWithLocation(null, settings) // Send without location
@@ -340,9 +433,9 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun setDetails(location: Location?){
-        binding.tvCurrentLatitude.text = location?.latitude.toString()
-        binding.tvCurrentLongitude.text = location?.longitude.toString()
+    private fun setDetails(location: Location?) {
+        binding.tvCurrentLatitude.text = "Current Latitude: "+ location?.latitude.toString() ?: "N/A"
+        binding.tvCurrentLongitude.text = "Current Longitude: "+ location?.longitude.toString() ?: "N/A"
     }
 
     // Helper function to build the SOS message with location (if available) and send it
@@ -465,6 +558,8 @@ class HomeFragment : Fragment() {
         if (currentAppSettings?.shakeDetection == true) {
             enableShakeDetection()
         }
+        // Restart display location updates if permissions are still granted
+        startLocationUpdatesForDisplay()
     }
 
     override fun onPause() {
@@ -472,14 +567,18 @@ class HomeFragment : Fragment() {
         // Always disable shake detection when the fragment is not in the foreground
         // to save battery and avoid accidental triggers.
         disableShakeDetection()
-        // IMPORTANT: Remove location updates when fragment is paused to save battery
-        locationCallback?.let {
-            fusedLocationClient.removeLocationUpdates(it)
-            Log.d("HomeFragment", "Location updates removed in onPause.")
-        }
-        sendingLocationSosJob?.cancel() // Cancel any pending location job
-        Log.d("HomeFragment", "Pending location SOS job cancelled in onPause.")
 
+        // IMPORTANT: Remove location updates when fragment is paused to save battery
+        sosLocationCallback?.let {
+            fusedLocationClient.removeLocationUpdates(it)
+            Log.d("HomeFragment", "SOS Location updates removed in onPause.")
+        }
+        displayLocationCallback?.let {
+            fusedLocationClient.removeLocationUpdates(it)
+            Log.d("HomeFragment", "Display Location updates removed in onPause.")
+        }
+        sendingLocationSosJob?.cancel() // Cancel any pending SOS location job
+        Log.d("HomeFragment", "Pending SOS location job cancelled in onPause.")
     }
 
     override fun onDestroyView() {
@@ -488,9 +587,39 @@ class HomeFragment : Fragment() {
         // Ensure any active listeners are unregistered
         disableShakeDetection()
         // Ensure location updates are removed if fragment view is destroyed
-        locationCallback?.let {
+        sosLocationCallback?.let {
+            fusedLocationClient.removeLocationUpdates(it)
+        }
+        displayLocationCallback?.let {
             fusedLocationClient.removeLocationUpdates(it)
         }
         sendingLocationSosJob?.cancel() // Cancel the job on view destruction as well
+    }
+
+    companion object {
+        private const val REQUEST_CHECK_SETTINGS = 100
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CHECK_SETTINGS) {
+            if (resultCode == Activity.RESULT_OK) {
+                // User enabled location or changed settings as requested
+                Log.d("HomeFragment", "User enabled location services for SOS. Retrying location fetch.")
+                // Re-initiate the location fetch, perhaps by calling checkLocationSettingsAndFetchSosLocation again
+                currentAppSettings?.let { settings ->
+                    fetchSosLocation(settings) // Directly call fetchSosLocation as settings are now adequate
+                }
+            } else {
+                // User cancelled or declined to change settings
+                Log.w("HomeFragment", "User declined to enable location services for SOS. Sending SOS without location.")
+                Snackbar.make(requireView(), "Location services not enabled. Sending SOS without location.", Snackbar.LENGTH_LONG).show()
+                currentAppSettings?.let { settings ->
+                    sendSosWithLocation(null, settings) // Send without location
+                    sendingLocationSosJob?.cancel()
+                }
+            }
+        }
     }
 }
