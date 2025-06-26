@@ -16,7 +16,6 @@ import com.example.sentryone.viewModels.ContactsViewModel
 import android.Manifest
 import android.util.Log
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -48,8 +47,7 @@ class ContactFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         checkContactPermission()
-//        rvSetup()
-        rvSetup2()
+        rvSetup()
 
         binding.btnAddContact.setOnClickListener {
             // Check if contactSuggestions has been initialized before using it
@@ -69,35 +67,6 @@ class ContactFragment : Fragment() {
                 binding.contactAutoComplete.setText("")
             } else {
                 Toast.makeText(requireContext(), "No matching contact found.", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun rvSetup() {
-        emergencyContactAdapter = EmergencyContactAdapter() { contactToDelete ->
-            // This lambda is called when the delete icon on an item is clicked
-            viewModel.delete(contactToDelete)
-            Toast.makeText(context, "${contactToDelete.name} deleted", Toast.LENGTH_SHORT).show()
-        }
-
-        binding.contactList.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = emergencyContactAdapter
-            setHasFixedSize(true)
-        }
-
-        viewModel.allContacts.observe(viewLifecycleOwner) { contacts ->
-            contacts?.let {
-                emergencyContactAdapter.submitList(it)
-                Log.d("ContactFragment", "Observed emergency contacts: ${it.size}")
-                if (it.isEmpty()) {
-                    binding.contactList.visibility = View.GONE
-                    // Optionally show a "No contacts yet" message
-//                     binding.tvNoContactsMessage.visibility = View.VISIBLE
-                } else {
-                    binding.contactList.visibility = View.VISIBLE
-                    // binding.tvNoContactsMessage.visibility = View.GONE
-                }
             }
         }
     }
@@ -135,7 +104,7 @@ class ContactFragment : Fragment() {
         }
     }
 
-    private fun rvSetup2() {
+    private fun rvSetup() {
         emergencyContactAdapter = EmergencyContactAdapter { contactToDelete ->
             viewModel.delete(contactToDelete)
             Toast.makeText(context, "${contactToDelete.name} deleted", Toast.LENGTH_SHORT).show()

@@ -51,6 +51,12 @@ import kotlinx.coroutines.launch
 import android.Manifest
 import android.annotation.SuppressLint
 import android.location.Location
+import com.example.sentryone.Database.SOSHistoryClass
+import com.example.sentryone.viewModels.SOSHistoryViewModel
+import kotlin.math.sqrt
+import kotlin.toString
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 
 class HomeFragment : Fragment() {
@@ -60,6 +66,7 @@ class HomeFragment : Fragment() {
     private val viewModel: ContactsViewModel by activityViewModels {
         ContactsViewModelFactory(requireActivity().application)
     }
+    private val sosViewmodel: SOSHistoryViewModel by activityViewModels()
     private lateinit var appSettingsManager: AppSettingsManager
     private var currentAppSettings: AppSettings? = null // Holds the latest settings from DataStore
 
@@ -449,8 +456,21 @@ class HomeFragment : Fragment() {
             "Unable to get current location details. $emergencyMessage"
         }
         Log.d("HomeFragment", "Final SOS message to send: $fullMessage")
+        val time = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
+        val formattedTime = time.format(formatter)
+        Log.d("HomeFragment", "Formatted time: $formattedTime")
+//      SOS database is created and updated value
+        val sosHistoryItem = SOSHistoryClass(
+            locationLatitude = location?.latitude.toString(),
+            locationLongitude = location?.longitude.toString(),
+            triggerTime = formattedTime
+        )
+        sosViewmodel.insert(sosHistoryItem)
+        Log.d("TAG", "sendSosWithLocation: db created and updated")
         sendSosMessageInternal(fullMessage, settings.silentlySend)
     }
+
 
     // Renamed from _sendSmsActual to make it clearer it's the internal sending mechanism
     private fun sendSosMessageInternal(message: String, silentlySend: Boolean) {
@@ -490,11 +510,7 @@ class HomeFragment : Fragment() {
                     }
                 } catch (e: Exception) {
                     Log.e("HomeFragment", "Failed to send SMS to ${contact.phoneNumber}: ${e.message}")
-                    Snackbar.make(
-                        requireView(),
-                        "Failed to send SOS message to ${contact.phoneNumber}.",
-                        Snackbar.LENGTH_LONG
-                    ).show()
+                    Snackbar.make(requireView(), "Failed to send SOS message to ${contact.phoneNumber}.", Snackbar.LENGTH_LONG).show()
                 }
             }
         }
@@ -512,7 +528,7 @@ class HomeFragment : Fragment() {
                 val gX = x / SensorManager.GRAVITY_EARTH
                 val gY = y / SensorManager.GRAVITY_EARTH
                 val gZ = z / SensorManager.GRAVITY_EARTH
-                val gForce = kotlin.math.sqrt((gX * gX + gY * gY + gZ * gZ).toDouble()).toFloat()
+                val gForce = sqrt((gX * gX + gY * gY + gZ * gZ).toDouble()).toFloat()
 
                 if (gForce > SHAKE_THRESHOLD_GRAVITY) {
                     val now = System.currentTimeMillis()

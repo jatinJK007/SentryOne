@@ -24,5 +24,5 @@ class ContactsViewModel (application: Application) : AndroidViewModel(applicatio
     }
 
     val allContacts: LiveData<List<EmergencyContact>> = dao.getAll()
-//    after every changes have made the LiveData updates it and stores in a variable of list of EmergencyContact
+//    after every changes have made the LiveData updates it and stores in a variable of list of type EmergencyContact
 }

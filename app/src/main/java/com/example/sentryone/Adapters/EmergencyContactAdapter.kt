@@ -52,4 +52,5 @@ class EmergencyContactAdapter(private val onDeleteClick: (EmergencyContact) -> U
 //    added via swipe to del functionality
     fun getItemAt(position: Int): EmergencyContact {
         return contacts[position]
-    }}
+    }
+}
