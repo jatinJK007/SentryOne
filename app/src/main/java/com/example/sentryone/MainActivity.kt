@@ -14,11 +14,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var bottomView : BottomNavigationView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
         bottomView= findViewById(R.id.bottomNavigationView)
-        replaceFragment(HomeFragment())
+
+        if (savedInstanceState== null){
+            replaceFragment(HomeFragment())
+        }
         bottomView.setOnItemSelectedListener{
             when(it.itemId){
                 R.id.home -> replaceFragment(HomeFragment())
@@ -26,17 +28,14 @@ class MainActivity : AppCompatActivity() {
                 R.id.history -> replaceFragment(HistoryFragment())
                 R.id.setting -> replaceFragment(SettingsFragment())
                 else ->{
-
                 }
             }
             true
         }
     }
     private fun replaceFragment(fragment: Fragment){
-        val fragmentManager = supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.frameLayout,fragment)
-        fragmentTransaction.commit()
-
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.frameLayout, fragment)
+            .commit()
     }
 }

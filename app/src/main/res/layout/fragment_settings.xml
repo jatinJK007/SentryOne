@@ -28,12 +28,17 @@
             app:layout_constraintTop_toTopOf="parent" />
 
 
-        <Button
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/btnSave"
             android:layout_width="wrap_content"
-            android:layout_height="37dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/save_24px"
             android:layout_marginTop="6dp"
-            android:text="SAVE"
+            android:contentDescription="Save Settings"
+            app:backgroundTint="@color/accent_color"
+            app:tint="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.627"
             app:layout_constraintStart_toEndOf="@+id/settingsTitle"
@@ -69,7 +74,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/open_sans_medium"
-            android:text="Enable Shake detection to trigger\nan Emergency Alert"
+            android:text="Shake your phone to \nsend an emergency alert."
             android:textColor="@color/stroke_color"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/shakeTv02" />
@@ -81,9 +86,11 @@
             android:thumb="@drawable/custom_thumb"
             app:track="@drawable/custom_track"
             app:showText="true"
-            android:textOn="on"
-            android:textOff="off"
-            android:layout_marginTop="54dp"
+            app:thumbTint="@drawable/switch_thumb_color"
+            app:trackTint="@drawable/switch_track_color"
+            android:textOn="ON"
+            android:textOff="OFF"
+            android:layout_marginTop="44dp"
             android:layout_marginEnd="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.827"
@@ -119,7 +126,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/open_sans_medium"
-            android:text="Enable Dark Mode\nfor use in night"
+            android:text="EEnable night-friendly interface"
             android:textColor="@color/stroke_color"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/darkTv02" />
@@ -128,7 +135,14 @@
             android:id="@+id/switchDarkMode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="84dp"
+            android:thumb="@drawable/custom_thumb"
+            app:track="@drawable/custom_track"
+            app:showText="true"
+            app:thumbTint="@drawable/switch_thumb_color"
+            app:trackTint="@drawable/switch_track_color"
+            android:textOn="ON"
+            android:textOff="OFF"
+            android:layout_marginTop="74dp"
             android:layout_marginEnd="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.916"
@@ -179,7 +193,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/open_sans_medium"
-            android:text="Enable Location Permission \nfor accurate Location access"
+            android:text="Allow location access for \naccurate alerts."
             android:textColor="@color/stroke_color"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/locationTv02" />
@@ -188,7 +202,14 @@
             android:id="@+id/switchLocationAccess"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="84dp"
+            android:thumb="@drawable/custom_thumb"
+            app:track="@drawable/custom_track"
+            app:showText="true"
+            android:textOn="ON"
+            app:thumbTint="@drawable/switch_thumb_color"
+            app:trackTint="@drawable/switch_track_color"
+            android:textOff="OFF"
+            android:layout_marginTop="74dp"
             android:layout_marginEnd="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.916"
@@ -224,52 +245,6 @@
             app:layout_constraintHorizontal_bias="0.099"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/alertTv01" />
-
-        <TextView
-            android:id="@+id/silentSendTv01"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:fontFamily="@font/poppins_semibold"
-            android:text="Slent Send"
-            android:textSize="18dp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/emergencyMsg" />
-
-        <TextView
-            android:id="@+id/silentSendTv02"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:fontFamily="@font/poppins_semibold"
-            android:text="Enable Silently Send"
-            android:textSize="14dp"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/silentSendTv01" />
-
-        <TextView
-            android:id="@+id/silentSendDesc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/open_sans_medium"
-            android:text="Enable silent send to send the\nlocation without any notification"
-            android:textColor="@color/stroke_color"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/silentSendTv02" />
-
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/switchSilentlySend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="230dp"
-            android:layout_marginEnd="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.894"
-            app:layout_constraintStart_toEndOf="@+id/silentSendDesc"
-            app:layout_constraintTop_toBottomOf="@+id/switchLocationAccess" />
-
         <TextView
             android:id="@+id/dialogueTv01"
             android:layout_width="wrap_content"
@@ -280,7 +255,7 @@
             android:textSize="18dp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/silentSendDesc" />
+            app:layout_constraintTop_toBottomOf="@+id/emergencyMsg" />
 
         <TextView
             android:id="@+id/dialogueTv02"
@@ -299,7 +274,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/open_sans_medium"
-            android:text="Enable to display the\ndialogue box before Trigger"
+            android:text="Ask before sending SOS alert"
             android:textColor="@color/stroke_color"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/dialogueTv02" />
@@ -308,12 +283,19 @@
             android:id="@+id/switchDialogue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="84dp"
+            android:thumb="@drawable/custom_thumb"
+            app:track="@drawable/custom_track"
+            app:showText="true"
+            app:thumbTint="@drawable/switch_thumb_color"
+            app:trackTint="@drawable/switch_track_color"
+            android:textOn="ON"
+            android:textOff="OFF"
+            android:layout_marginTop="220dp"
             android:layout_marginEnd="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.916"
             app:layout_constraintStart_toEndOf="@+id/dialogueDesc"
-            app:layout_constraintTop_toBottomOf="@+id/switchSilentlySend" />
+            app:layout_constraintTop_toBottomOf="@+id/switchLocationAccess" />
 
         <TextView
             android:id="@+id/flashTv01"
@@ -353,6 +335,13 @@
             android:id="@+id/switchFlashTrigger"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:thumb="@drawable/custom_thumb"
+            app:track="@drawable/custom_track"
+            app:showText="true"
+            app:thumbTint="@drawable/switch_thumb_color"
+            app:trackTint="@drawable/switch_track_color"
+            android:textOn="ON"
+            android:textOff="OFF"
             android:layout_marginTop="60dp"
             android:layout_marginEnd="16dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -391,6 +380,7 @@
             android:fontFamily="@font/open_sans_medium"
             android:text="Enable for Haptic feedback\nwhile sending SOS message"
             android:textColor="@color/stroke_color"
+            android:layout_marginBottom="10dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/hapticTv02" />
 
@@ -398,6 +388,14 @@
             android:id="@+id/switchHepticFeedback"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:thumb="@drawable/custom_thumb"
+            app:track="@drawable/custom_track"
+            app:showText="true"
+            app:thumbTint="@drawable/switch_thumb_color"
+            app:trackTint="@drawable/switch_track_color"
+            android:textOn="ON"
+            android:textColor="@color/accent_color"
+            android:textOff="OFF"
             android:layout_marginTop="60dp"
             android:layout_marginEnd="16dp"
             app:layout_constraintEnd_toEndOf="parent"

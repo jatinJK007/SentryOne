@@ -13,7 +13,6 @@ import android.hardware.SensorManager
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -52,12 +51,12 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.location.Location
 import com.example.sentryone.Database.SOSHistoryClass
+import com.example.sentryone.MainActivity
 import com.example.sentryone.viewModels.SOSHistoryViewModel
-import kotlin.math.sqrt
-import kotlin.toString
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-
+import kotlin.math.sqrt
 
 class HomeFragment : Fragment() {
 
@@ -68,7 +67,7 @@ class HomeFragment : Fragment() {
     }
     private val sosViewmodel: SOSHistoryViewModel by activityViewModels()
     private lateinit var appSettingsManager: AppSettingsManager
-    private var currentAppSettings: AppSettings? = null // Holds the latest settings from DataStore
+    private var currentAppSettings: AppSettings? = null
 
     // For Shake Detection
     private var sensorManager: SensorManager? = null
@@ -92,9 +91,9 @@ class HomeFragment : Fragment() {
     // LocationRequest for UI display (lower frequency, continuous updates)
     private lateinit var displayLocationRequest: LocationRequest
 
-    private var sosLocationCallback: LocationCallback? = null // Receives location updates for SOS
-    private var displayLocationCallback: LocationCallback? = null // Receives location updates for UI display
-    private var sendingLocationSosJob: Job? = null // Manages the location fetching coroutine and its timeout for SOS
+    private var sosLocationCallback: LocationCallback? = null
+    private var displayLocationCallback: LocationCallback? = null
+    private var sendingLocationSosJob: Job? = null
 
     // Unified permission launcher for all necessary permissions
     private val requestPermissionsLauncher = registerForActivityResult(
@@ -120,9 +119,8 @@ class HomeFragment : Fragment() {
             if (settings.locationAccess && allRequiredLocationGranted) {
                 checkLocationSettingsAndFetchSosLocation(settings)
             } else {
-                // Otherwise, send basic SOS message (with or without location if denied/not enabled)
                 val message = settings.emergencyMessage.ifEmpty { "Emergency! I need help!" }
-                sendSosMessageInternal(message, settings.silentlySend)
+                sendSosMessageInternal(message)
             }
         } else {
             Snackbar.make(requireView(), "SMS permission denied. Cannot send emergency messages.", Snackbar.LENGTH_LONG).show()
@@ -142,7 +140,6 @@ class HomeFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Initialize LocationRequest here as it's a good place for fixed configurations
         sosLocationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000) // 5 seconds interval for SOS
             .setWaitForAccurateLocation(false)
             .setMinUpdateIntervalMillis(2000) // Minimum 2 seconds interval
@@ -179,8 +176,6 @@ class HomeFragment : Fragment() {
         }
         setupSosButton()
         observeAppSettings()
-
-        // Start location updates for display as soon as the view is created
         startLocationUpdatesForDisplay()
     }
 
@@ -202,6 +197,7 @@ class HomeFragment : Fragment() {
                 } else {
                     disableShakeDetection()
                 }
+                binding.tvLastAlert.text = "  Last Alert Sent:\n"+"${settings.lastAlertSend}"
             }
         }
     }
@@ -237,7 +233,7 @@ class HomeFragment : Fragment() {
             }
             dialog.show()
         } else {
-            initiateSosFlow(settings) // Call the new unified flow directly
+            initiateSosFlow(settings)
         }
     }
 
@@ -264,7 +260,7 @@ class HomeFragment : Fragment() {
         } else {
             // If no special permissions needed (e.g., only basic message, no location), send directly
             val message = settings.emergencyMessage.ifEmpty { "Emergency! I need help!" }
-            sendSosMessageInternal(message, settings.silentlySend)
+            sendSosMessageInternal(message)
         }
     }
 
@@ -312,7 +308,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // New function to start location updates for UI display
     @SuppressLint("MissingPermission") // Permissions checked by callers
     private fun startLocationUpdatesForDisplay() {
         // Only start if permissions are granted
@@ -361,18 +356,15 @@ class HomeFragment : Fragment() {
         val settingsClient = LocationServices.getSettingsClient(requireActivity())
         settingsClient.checkLocationSettings(locationSettingsRequest)
             .addOnSuccessListener { locationSettingsResponse ->
-                // Location settings are satisfied. Proceed to request location updates.
                 Log.d("HomeFragment", "Location settings are adequate. Requesting SOS location updates.")
                 fetchSosLocation(settings)
             }
             .addOnFailureListener { exception ->
                 if (exception is ResolvableApiException) {
                     try {
-                        // Show the dialog by calling startResolutionForResult()
-                        // and check the result in onActivityResult().
+
                         exception.startResolutionForResult(requireActivity(), REQUEST_CHECK_SETTINGS)
                     } catch (sendEx: IntentSender.SendIntentException) {
-                        // Ignore the error.
                         Log.e("HomeFragment", "Error showing location settings dialog: ${sendEx.message}")
                     }
                 } else {
@@ -383,7 +375,6 @@ class HomeFragment : Fragment() {
                 }
             }
     }
-
 
     // Function to actively fetch location for SOS message
     @SuppressLint("MissingPermission") // Suppress lint here as permission is checked by callers
@@ -441,8 +432,9 @@ class HomeFragment : Fragment() {
     }
 
     private fun setDetails(location: Location?) {
-        binding.tvCurrentLatitude.text = "Current Latitude: "+ location?.latitude.toString() ?: "N/A"
-        binding.tvCurrentLongitude.text = "Current Longitude: "+ location?.longitude.toString() ?: "N/A"
+        binding.tvCurrentLatitude.text = "Current Latitude: ${location?.latitude.toString() ?: "N/A"}"
+        binding.tvCurrentLongitude.text = "Current Longitude: ${location?.longitude.toString() ?: "N/A"}"
+
     }
 
     // Helper function to build the SOS message with location (if available) and send it
@@ -460,7 +452,8 @@ class HomeFragment : Fragment() {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
         val formattedTime = time.format(formatter)
         Log.d("HomeFragment", "Formatted time: $formattedTime")
-//      SOS database is created and updated value
+
+        // SOS database is created and updated value
         val sosHistoryItem = SOSHistoryClass(
             locationLatitude = location?.latitude.toString(),
             locationLongitude = location?.longitude.toString(),
@@ -468,53 +461,59 @@ class HomeFragment : Fragment() {
         )
         sosViewmodel.insert(sosHistoryItem)
         Log.d("TAG", "sendSosWithLocation: db created and updated")
-        sendSosMessageInternal(fullMessage, settings.silentlySend)
+
+        sendSosMessageInternal(fullMessage)
     }
 
+private fun sendSosMessageInternal(message: String) {
+    Log.d("TAG", "sendSosMessageInternal: into sms msg functionality")
+    viewModel.allContacts.observe(viewLifecycleOwner) { contacts ->
+        if (contacts.isEmpty()) {
+            Snackbar.make(requireView(), "No emergency contacts set!", Snackbar.LENGTH_LONG).show()
+            Log.w("HomeFragment", "No emergency contacts found to send message.")
+            return@observe
+        }
 
-    // Renamed from _sendSmsActual to make it clearer it's the internal sending mechanism
-    private fun sendSosMessageInternal(message: String, silentlySend: Boolean) {
-        Log.d("TAG", "sendSosMessageInternal: into sms msg functionality")
-        viewModel.allContacts.observe(viewLifecycleOwner) { contacts ->
-            if (contacts.isEmpty()) {
-                Snackbar.make(requireView(), "No emergency contacts set!", Snackbar.LENGTH_LONG).show()
-                Log.w("HomeFragment", "No emergency contacts found to send message.")
-                return@observe // Return from the lambda, not the function
-            }
-            val smsManager: SmsManager = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                requireContext().getSystemService(SmsManager::class.java) as SmsManager
-            } else {
-                @Suppress("DEPRECATION")
-                SmsManager.getDefault()
-            }
-            for (contact in contacts) {
+        var anySmsSentAttempted = false
+        val smsManager: SmsManager = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            requireContext().getSystemService(SmsManager::class.java) as SmsManager
+        } else {
+            @Suppress("DEPRECATION")
+            SmsManager.getDefault()
+        }
+
+        for (contact in contacts) {
+            if (contact.phoneNumber.isNotBlank()) { // Only attempt to send if phone number is not blank
                 try {
-                    if (silentlySend) {
-                        val parts = smsManager.divideMessage(message)
-                        smsManager.sendMultipartTextMessage(contact.phoneNumber, null, parts, null, null)
-                        Log.d("HomeFragment", "SMS sent silently to ${contact.phoneNumber}")
-                        Snackbar.make(requireView(), "SOS sent silently to ${contact.phoneNumber}", Snackbar.LENGTH_SHORT).show()
-                    } else {
-                        val intent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse("smsto:${contact.phoneNumber}")
-                            putExtra("sms_body", message)
-                        }
-                        if (intent.resolveActivity(requireContext().packageManager) != null) {
-                            startActivity(intent)
-                            Log.d("HomeFragment", "Opening SMS app for ${contact.phoneNumber}")
-                            Snackbar.make(requireView(), "Opening SMS app to send message to ${contact.phoneNumber}", Snackbar.LENGTH_LONG).show()
-                        } else {
-                            Log.e("HomeFragment", "No SMS app found to handle intent for ${contact.phoneNumber}.")
-                            Snackbar.make(requireView(), "No SMS app found. Cannot send message.", Snackbar.LENGTH_LONG).show()
-                        }
-                    }
+                    val parts = smsManager.divideMessage(message)
+                    smsManager.sendMultipartTextMessage(contact.phoneNumber, null, parts, null, null)
+                    Log.d("HomeFragment", "SMS sent to ${contact.phoneNumber}")
+                    Snackbar.make(requireView(), "SOS sent to ${contact.phoneNumber}", Snackbar.LENGTH_SHORT).show()
+                    anySmsSentAttempted = true // Set flag to true if at least one SMS was sent
                 } catch (e: Exception) {
                     Log.e("HomeFragment", "Failed to send SMS to ${contact.phoneNumber}: ${e.message}")
                     Snackbar.make(requireView(), "Failed to send SOS message to ${contact.phoneNumber}.", Snackbar.LENGTH_LONG).show()
                 }
+            } else {
+                Log.w("HomeFragment", "Contact ${contact.name} has no phone number, skipping SMS.")
             }
         }
+
+        // Update last alert send time if at least one SMS was successfully attempted
+        if (anySmsSentAttempted) {
+            lifecycleScope.launch {
+                val currentTime = LocalDateTime.now()
+                val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")
+                val formattedTime = currentTime.format(formatter)
+                appSettingsManager.updateLastAlertSend(formattedTime)
+                Log.d("HomeFragment", "Last alert send time updated: $formattedTime")
+            }
+        }
+        if (!anySmsSentAttempted) {
+            Log.w("HomeFragment", "No SMS messages could be sent.")
+        }
     }
+}
 
     private val shakeListener = object : SensorEventListener {
         override fun onSensorChanged(event: SensorEvent?) {
@@ -580,11 +579,8 @@ class HomeFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        // Always disable shake detection when the fragment is not in the foreground
-        // to save battery and avoid accidental triggers.
         disableShakeDetection()
 
-        // IMPORTANT: Remove location updates when fragment is paused to save battery
         sosLocationCallback?.let {
             fusedLocationClient.removeLocationUpdates(it)
             Log.d("HomeFragment", "SOS Location updates removed in onPause.")
@@ -593,23 +589,21 @@ class HomeFragment : Fragment() {
             fusedLocationClient.removeLocationUpdates(it)
             Log.d("HomeFragment", "Display Location updates removed in onPause.")
         }
-        sendingLocationSosJob?.cancel() // Cancel any pending SOS location job
+        sendingLocationSosJob?.cancel()
         Log.d("HomeFragment", "Pending SOS location job cancelled in onPause.")
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        // Ensure any active listeners are unregistered
         disableShakeDetection()
-        // Ensure location updates are removed if fragment view is destroyed
         sosLocationCallback?.let {
             fusedLocationClient.removeLocationUpdates(it)
         }
         displayLocationCallback?.let {
             fusedLocationClient.removeLocationUpdates(it)
         }
-        sendingLocationSosJob?.cancel() // Cancel the job on view destruction as well
+        sendingLocationSosJob?.cancel()
     }
 
     companion object {
@@ -621,14 +615,11 @@ class HomeFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CHECK_SETTINGS) {
             if (resultCode == Activity.RESULT_OK) {
-                // User enabled location or changed settings as requested
                 Log.d("HomeFragment", "User enabled location services for SOS. Retrying location fetch.")
-                // Re-initiate the location fetch, perhaps by calling checkLocationSettingsAndFetchSosLocation again
                 currentAppSettings?.let { settings ->
                     fetchSosLocation(settings) // Directly call fetchSosLocation as settings are now adequate
                 }
             } else {
-                // User cancelled or declined to change settings
                 Log.w("HomeFragment", "User declined to enable location services for SOS. Sending SOS without location.")
                 Snackbar.make(requireView(), "Location services not enabled. Sending SOS without location.", Snackbar.LENGTH_LONG).show()
                 currentAppSettings?.let { settings ->

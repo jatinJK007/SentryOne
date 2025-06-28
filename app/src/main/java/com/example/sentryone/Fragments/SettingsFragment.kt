@@ -93,13 +93,6 @@ class SettingsFragment : Fragment() {
 //            }
 //        }
 
-        // Listener for Silently Send switch
-        binding.switchSilentlySend.setOnCheckedChangeListener { _, isChecked ->
-            lifecycleScope.launch {
-                appSettingsManager.updateSetting(AppSettingsKeys.SILENTLY_SEND, isChecked)
-            }
-        }
-
         // Listener for Show Dialogue switch
         binding.switchDialogue.setOnCheckedChangeListener { _, isChecked ->
             lifecycleScope.launch {
@@ -145,7 +138,6 @@ class SettingsFragment : Fragment() {
                 binding.switchDarkMode.isChecked = settings.darkMode
                 binding.switchLocationAccess.isChecked = settings.locationAccess
 //                binding.switchTriggeringMode.isChecked = settings.triggeringMode
-                binding.switchSilentlySend.isChecked = settings.silentlySend
                 binding.emergencyMsg.setText(settings.emergencyMessage) // Use binding.emergencyMsg
                 binding.switchDialogue.isChecked = settings.showDialogue
                 binding.switchShakeDetction.isChecked = settings.shakeDetection

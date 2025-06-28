@@ -6,4 +6,5 @@
     <color name="stroke_color">#008080</color>
     <color name="text_color_primary">#212121</color>
     <color name="accent_color">#80CBC4</color>
+    <color name="text_color_secondary">#343434</color>
 </resources>

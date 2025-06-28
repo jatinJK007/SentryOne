@@ -11,23 +11,20 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-// At the top level of your file (outside any class)
 val Context.appSettingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "app_settings")
 
-// Keys for your settings
 object AppSettingsKeys {
     val DARK_MODE = booleanPreferencesKey("dark_mode")
     val LOCATION_ACCESS = booleanPreferencesKey("location_access")
     val TRIGGERING_MODE = booleanPreferencesKey("triggering_mode")
-    val SILENTLY_SEND = booleanPreferencesKey("silently_send")
     val EMERGENCY_MESSAGE = stringPreferencesKey("emergency_message")
     val SHOW_DIALOGUE = booleanPreferencesKey("show_dialogue")
     val SHAKE_DETECTION = booleanPreferencesKey("shake_detection")
     val FLASH_TRIGGER = booleanPreferencesKey("flash_trigger")
     val HEPTIC_FEEDBACK = booleanPreferencesKey("heptic_feedback")
+    val LAST_ALERT_SEND = stringPreferencesKey("last_alert_send")
 }
 
-// Data class to represent your settings
 data class AppSettings(
     val darkMode: Boolean = false,
     val locationAccess: Boolean = false,
@@ -37,11 +34,10 @@ data class AppSettings(
     val showDialogue: Boolean = false,
     val shakeDetection: Boolean = false,
     val flashTrigger: Boolean = false,
-    val hepticFeedback: Boolean = false
-
+    val hepticFeedback: Boolean = false,
+    val lastAlertSend: String = "N/A"
 )
 
-// Helper class to encapsulate DataStore operations
 class AppSettingsManager(private val context: Context) {
 
     val appSettingsFlow: Flow<AppSettings> = context.appSettingsDataStore.data
@@ -50,12 +46,12 @@ class AppSettingsManager(private val context: Context) {
                 darkMode = preferences[AppSettingsKeys.DARK_MODE] ?: false,
                 locationAccess = preferences[AppSettingsKeys.LOCATION_ACCESS] ?: false,
                 triggeringMode = preferences[AppSettingsKeys.TRIGGERING_MODE] ?: false,
-                silentlySend = preferences[AppSettingsKeys.SILENTLY_SEND] ?: false,
                 emergencyMessage = preferences[AppSettingsKeys.EMERGENCY_MESSAGE] ?: "",
                 showDialogue = preferences[AppSettingsKeys.SHOW_DIALOGUE] ?: false,
                 shakeDetection = preferences[AppSettingsKeys.SHAKE_DETECTION] ?: false,
-                flashTrigger = preferences[AppSettingsKeys.FLASH_TRIGGER] ?: false, // Mapped flashTrigger
-                hepticFeedback = preferences[AppSettingsKeys.HEPTIC_FEEDBACK] ?: false // Mapped hepticFeedback
+                flashTrigger = preferences[AppSettingsKeys.FLASH_TRIGGER] ?: false,
+                hepticFeedback = preferences[AppSettingsKeys.HEPTIC_FEEDBACK] ?: false,
+                lastAlertSend = preferences[AppSettingsKeys.LAST_ALERT_SEND] ?: "N/A"
 
             )
         }
@@ -69,6 +65,11 @@ class AppSettingsManager(private val context: Context) {
     suspend fun updateEmergencyMessage(message: String) {
         context.appSettingsDataStore.edit { settings ->
             settings[AppSettingsKeys.EMERGENCY_MESSAGE] = message
+        }
+    }
+    suspend fun updateLastAlertSend(timestamp: String) {
+        context.appSettingsDataStore.edit { preferences ->
+            preferences[AppSettingsKeys.LAST_ALERT_SEND] = timestamp
         }
     }
 
