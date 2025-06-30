@@ -43,16 +43,16 @@ SentryOne is an Android app designed to provide immediate emergency assistance w
   - ViewModel with ViewModelFactory
   - Coroutines for async operations
   - Bottom Navigation with 4 fragments
-<!--
+
 ## 📲 Installation
 
-1. **Download the APK:** Get the [latest release](https://github.com/jatinJK007/sentry-one/releases/latest/download/sentry-one.apk)
+1. **Download the APK:** Get the [latest release](https://github.com/jatinJK007/SentryOne/releases/download/v.1.0.0/app-release.apk)
 2. **Install on Android:** Enable "Install Unknown Sources" if needed
 3. **Set Up:**
    - Grant necessary permissions (contacts, location, SMS)
    - Add emergency contacts in the Contacts tab
    - Configure settings to your preference
--->
+
 ## 🛠️ Technical Implementation
 
 * **Architecture Components:**
