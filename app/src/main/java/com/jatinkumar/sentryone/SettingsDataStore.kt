@@ -1,4 +1,4 @@
-package com.example.sentryone
+package com.jatinkumar.sentryone
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 val Context.appSettingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "app_settings")
-
+    
 object AppSettingsKeys {
     val DARK_MODE = booleanPreferencesKey("dark_mode")
     val LOCATION_ACCESS = booleanPreferencesKey("location_access")
@@ -76,6 +76,6 @@ class AppSettingsManager(private val context: Context) {
     suspend fun getBooleanSetting(key: Preferences.Key<Boolean>, defaultValue: Boolean): Boolean {
         return context.appSettingsDataStore.data.map { preferences ->
             preferences[key] ?: defaultValue
-        }.first() // Use .first() to get the current value once
+        }.first()
     }
 }

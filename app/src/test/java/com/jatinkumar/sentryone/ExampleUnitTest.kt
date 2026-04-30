@@ -1,4 +1,4 @@
-package com.example.sentryone
+package com.jatinkumar.sentryone
 
 import org.junit.Test
 

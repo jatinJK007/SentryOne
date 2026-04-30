@@ -1,4 +1,4 @@
-package com.example.sentryone.Database
+package com.jatinkumar.sentryone.Database
 
 import android.content.Context
 import android.util.Log

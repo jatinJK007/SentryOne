@@ -1,4 +1,4 @@
-package com.example.sentryone.Fragments
+package com.jatinkumar.sentryone.Fragments
 
 import android.os.Bundle
 import android.Manifest
@@ -11,9 +11,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.example.sentryone.AppSettingsKeys
-import com.example.sentryone.AppSettingsManager
-import com.example.sentryone.databinding.FragmentSettingsBinding
+import com.jatinkumar.sentryone.AppSettingsKeys
+import com.jatinkumar.sentryone.AppSettingsManager
+import com.jatinkumar.sentryone.databinding.FragmentSettingsBinding
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -25,22 +25,18 @@ class SettingsFragment : Fragment() {
     private var _binding : FragmentSettingsBinding? = null
     private val binding get() = _binding!!
 
-    // Request launcher for location permissions
     private val requestLocationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val granted = permissions.entries.all { it.value }
         if (granted) {
-            // Permissions granted, you might want to update UI or take action
             binding.tvErrorMessage.visibility = View.GONE
             binding.switchLocationAccess.isChecked = true
         } else {
-            // Permissions denied, update UI or show a message
             binding.tvErrorMessage.text = "Location permission denied. Features may be limited."
             binding.tvErrorMessage.visibility = View.VISIBLE
             binding.switchLocationAccess.isChecked = false
         }
-        // Save the updated state to DataStore
         lifecycleScope.launch {
             appSettingsManager.updateSetting(AppSettingsKeys.LOCATION_ACCESS, granted)
         }
@@ -63,7 +59,6 @@ class SettingsFragment : Fragment() {
     }
 
     private fun setupListeners() {
-        // Listener for Dark Mode switch
         binding.switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
             lifecycleScope.launch {
                 appSettingsManager.updateSetting(AppSettingsKeys.DARK_MODE, isChecked)
@@ -73,55 +68,40 @@ class SettingsFragment : Fragment() {
             }
         }
 
-        // Listener for Location Access switch
         binding.switchLocationAccess.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 requestLocationPermissions()
             } else {
-                // User wants to revoke, update DataStore directly
                 lifecycleScope.launch {
                     appSettingsManager.updateSetting(AppSettingsKeys.LOCATION_ACCESS, false)
                     binding.tvErrorMessage.visibility = View.GONE // Hide error if user manually unchecks
                 }
             }
         }
-
-        // Listener for Triggering Mode switch
-//        binding.switchTriggeringMode.setOnCheckedChangeListener { _, isChecked ->
-//            lifecycleScope.launch {
-//                appSettingsManager.updateSetting(AppSettingsKeys.TRIGGERING_MODE, isChecked)
-//            }
-//        }
-
-        // Listener for Show Dialogue switch
         binding.switchDialogue.setOnCheckedChangeListener { _, isChecked ->
             lifecycleScope.launch {
                 appSettingsManager.updateSetting(AppSettingsKeys.SHOW_DIALOGUE, isChecked)
             }
         }
 
-        // Listener for Shake Detection switch
         binding.switchShakeDetction.setOnCheckedChangeListener { _, isChecked ->
             lifecycleScope.launch {
                 appSettingsManager.updateSetting(AppSettingsKeys.SHAKE_DETECTION, isChecked)
             }
         }
 
-        // Listener for Flash Trigger switch - ADDED THIS ONE
         binding.switchFlashTrigger.setOnCheckedChangeListener { _, isChecked ->
             lifecycleScope.launch {
                 appSettingsManager.updateSetting(AppSettingsKeys.FLASH_TRIGGER, isChecked)
             }
         }
 
-        // Listener for Heptic Feedback switch - ADDED THIS ONE
         binding.switchHepticFeedback.setOnCheckedChangeListener { _, isChecked ->
             lifecycleScope.launch {
                 appSettingsManager.updateSetting(AppSettingsKeys.HEPTIC_FEEDBACK, isChecked)
             }
         }
 
-        // Save button listener
         binding.btnSave.setOnClickListener {
             val emergencyMessage = binding.emergencyMsg.text.toString()
             lifecycleScope.launch {
@@ -134,22 +114,19 @@ class SettingsFragment : Fragment() {
     private fun observeSettings() {
         lifecycleScope.launch {
             appSettingsManager.appSettingsFlow.collectLatest { settings ->
-                // Update UI based on the latest settings using binding
                 binding.switchDarkMode.isChecked = settings.darkMode
                 binding.switchLocationAccess.isChecked = settings.locationAccess
-//                binding.switchTriggeringMode.isChecked = settings.triggeringMode
-                binding.emergencyMsg.setText(settings.emergencyMessage) // Use binding.emergencyMsg
+                binding.emergencyMsg.setText(settings.emergencyMessage)
                 binding.switchDialogue.isChecked = settings.showDialogue
                 binding.switchShakeDetction.isChecked = settings.shakeDetection
                 binding.switchFlashTrigger.isChecked = settings.flashTrigger
                 binding.switchHepticFeedback.isChecked = settings.hepticFeedback
 
 
-                // Handle initial state of location access and error message
                 if (settings.locationAccess && !checkLocationPermissions()) {
                     binding.tvErrorMessage.text = "Location permission needed. Please grant it."
                     binding.tvErrorMessage.visibility = View.VISIBLE
-                    binding.switchLocationAccess.isChecked = false // Uncheck if permission is not truly granted
+                    binding.switchLocationAccess.isChecked = false
                 } else {
                     binding.tvErrorMessage.visibility = View.GONE
                 }
@@ -158,14 +135,8 @@ class SettingsFragment : Fragment() {
     }
 
     private fun checkLocationPermissions(): Boolean {
-        val fineLocationGranted = ContextCompat.checkSelfPermission(
-            requireContext(),
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-        val coarseLocationGranted = ContextCompat.checkSelfPermission(
-            requireContext(),
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
+        val fineLocationGranted = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val coarseLocationGranted = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
         return fineLocationGranted && coarseLocationGranted
     }
 
@@ -178,7 +149,6 @@ class SettingsFragment : Fragment() {
                 )
             )
         } else {
-            // Permissions are already granted, update DataStore
             lifecycleScope.launch {
                 appSettingsManager.updateSetting(AppSettingsKeys.LOCATION_ACCESS, true)
             }

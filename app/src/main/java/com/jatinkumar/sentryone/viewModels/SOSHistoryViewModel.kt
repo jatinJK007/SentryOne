@@ -1,11 +1,11 @@
-package com.example.sentryone.viewModels
+package com.jatinkumar.sentryone.viewModels
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
-import com.example.sentryone.Database.SOSHistoryClass
-import com.example.sentryone.Database.SOSHistoryDatabase
+import com.jatinkumar.sentryone.Database.SOSHistoryClass
+import com.jatinkumar.sentryone.Database.SOSHistoryDatabase
 import kotlinx.coroutines.launch
 
 class SOSHistoryViewModel(application: Application) : AndroidViewModel(application) {

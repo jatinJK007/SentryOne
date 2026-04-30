@@ -1,12 +1,12 @@
-package com.example.sentryone.Adapters
+package com.jatinkumar.sentryone.Adapters
 
 import android.view.LayoutInflater
-import com.example.sentryone.R
+import com.jatinkumar.sentryone.R
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.sentryone.Database.SOSHistoryClass
+import com.jatinkumar.sentryone.Database.SOSHistoryClass
 
 class SOSHistoryAdapter: RecyclerView.Adapter<SOSHistoryAdapter.SOSHistoryViewHolder>() {
     private var sosHistory : List<SOSHistoryClass> = emptyList()
@@ -29,8 +29,7 @@ class SOSHistoryAdapter: RecyclerView.Adapter<SOSHistoryAdapter.SOSHistoryViewHo
 
     fun submitList(newSOSHistory: List<SOSHistoryClass>) {
         sosHistory = newSOSHistory
-        notifyDataSetChanged() // Notifies the adapter that the data set has changed
-        // For better performance with large lists, consider using DiffUtil
+        notifyDataSetChanged()
     }
 
     class SOSHistoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){

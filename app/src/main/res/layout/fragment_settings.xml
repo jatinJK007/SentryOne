@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
+        android:layout_marginTop="20dp"
         android:layout_height="match_parent">
 
         <TextView
@@ -34,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
-            android:src="@drawable/save_24px"
+            android:src="@drawable/notifications_24px"
             android:layout_marginTop="6dp"
             android:contentDescription="Save Settings"
             app:backgroundTint="@color/accent_color"
@@ -83,19 +84,19 @@
             android:id="@+id/switchShakeDetction"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="42dp"
+            android:layout_marginEnd="16dp"
+            android:textOff="OFF"
+            android:textOn="ON"
             android:thumb="@drawable/custom_thumb"
-            app:track="@drawable/custom_track"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.968"
+            app:layout_constraintStart_toEndOf="@+id/shakeDesc"
+            app:layout_constraintTop_toBottomOf="@+id/btnSave"
             app:showText="true"
             app:thumbTint="@drawable/switch_thumb_color"
-            app:trackTint="@drawable/switch_track_color"
-            android:textOn="ON"
-            android:textOff="OFF"
-            android:layout_marginTop="44dp"
-            android:layout_marginEnd="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.827"
-            app:layout_constraintStart_toEndOf="@+id/shakeDesc"
-            app:layout_constraintTop_toBottomOf="@+id/btnSave" />
+            app:track="@drawable/custom_track"
+            app:trackTint="@drawable/switch_track_color" />
 
         <TextView
             android:id="@+id/darkTv01"
@@ -126,7 +127,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/open_sans_medium"
-            android:text="EEnable night-friendly interface"
+            android:text="Enable night-friendly interface"
             android:textColor="@color/stroke_color"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/darkTv02" />
@@ -232,7 +233,7 @@
             android:id="@+id/emergencyMsg"
             android:layout_width="match_parent"
             android:layout_margin="20dp"
-            android:paddingTop="3dp"
+            android:paddingTop="5dp"
             android:hint="Enter the Emergency Message"
             android:paddingStart="7dp"
             android:layout_height="100dp"
@@ -381,6 +382,7 @@
             android:text="Enable for Haptic feedback\nwhile sending SOS message"
             android:textColor="@color/stroke_color"
             android:layout_marginBottom="10dp"
+            android:paddingBottom="45dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/hapticTv02" />
 

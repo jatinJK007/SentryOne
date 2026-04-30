@@ -1,4 +1,4 @@
-package com.example.sentryone.Fragments
+package com.jatinkumar.sentryone.Fragments
 
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -10,17 +10,17 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import com.example.sentryone.Database.EmergencyContact
-import com.example.sentryone.databinding.FragmentContactBinding
-import com.example.sentryone.viewModels.ContactsViewModel
+import com.jatinkumar.sentryone.Database.EmergencyContact
+import com.jatinkumar.sentryone.databinding.FragmentContactBinding
+import com.jatinkumar.sentryone.viewModels.ContactsViewModel
 import android.Manifest
 import android.util.Log
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.sentryone.Adapters.EmergencyContactAdapter
-import com.example.sentryone.ContactsViewModelFactory
+import com.jatinkumar.sentryone.Adapters.EmergencyContactAdapter
+import com.jatinkumar.sentryone.ContactsViewModelFactory
 
 
 class ContactFragment : Fragment() {
@@ -50,22 +50,30 @@ class ContactFragment : Fragment() {
         rvSetup()
 
         binding.btnAddContact.setOnClickListener {
-            // Check if contactSuggestions has been initialized before using it
             if (!::contactSuggestions.isInitialized) {
                 Toast.makeText(requireContext(), "Contacts not loaded yet. Please try again.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             val entered = binding.contactAutoComplete.text.toString()
-            Log.d("TAG", "onViewCreated: in contact frag num is entered")
-            val match = contactSuggestions.find { it.second.contains(entered) }
+            val match = contactSuggestions.find { it.first.contains(entered, ignoreCase = true) }
             if (match != null) {
-                val contact = EmergencyContact(name = match.first, phoneNumber = match.second, type = "Friend")
-                Log.d("TAG", "onViewCreated: contact is $contact and contact is selected")
-                viewModel.insert(contact)
-                Toast.makeText(requireContext(), "Contact saved!", Toast.LENGTH_SHORT).show()
-                binding.contactAutoComplete.setText("")
-            } else {
+                val selectedNumber = match.second
+                val isAlreadyAdded = viewModel.allContacts.value?.any { it.phoneNumber == selectedNumber } ?: false
+                if (isAlreadyAdded) {
+                    Toast.makeText(requireContext(), "This contact is already in your favorites list.", Toast.LENGTH_SHORT).show()
+                }else{
+                    val contact = EmergencyContact(
+                        name = match.first,
+                        phoneNumber = selectedNumber,
+                        type = "Friend"
+                    )
+                    viewModel.insert(contact)
+                    Toast.makeText(requireContext(), "Saved: ${match.first}", Toast.LENGTH_SHORT).show()
+                    binding.contactAutoComplete.setText("")
+                }
+            }
+            else {
                 Toast.makeText(requireContext(), "No matching contact found.", Toast.LENGTH_SHORT).show()
             }
         }
@@ -87,11 +95,15 @@ class ContactFragment : Fragment() {
         }
 
         contactSuggestions = suggestions
-        val numbers = suggestions.map { it.second }
-//        val name = suggestions.map { it.first }
+//        val numbers = suggestions.map { it.second }
+        val name = suggestions.map { it.first }.distinct()
+        // CHANGE: Create a list of "Name - Number" for the dropdown display
+//        val displayList = suggestions.map { "${it.first} (${it.second})" }
+////
+////        // CHANGE: Use displayList instead of just numbers
+//        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, displayList)
 
-
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, numbers)
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, name)
         binding.contactAutoComplete.setAdapter(adapter)
     }
 
@@ -115,19 +127,17 @@ class ContactFragment : Fragment() {
             adapter = emergencyContactAdapter
         }
 
-        // Observe DB changes
         viewModel.allContacts.observe(viewLifecycleOwner) { contacts ->
             emergencyContactAdapter.submitList(contacts)
         }
 
-        // added swipe-to-delete
         val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
                 target: RecyclerView.ViewHolder
             ): Boolean {
-                return false // We don’t support move
+                return false
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {

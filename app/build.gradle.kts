@@ -6,25 +6,26 @@ plugins {
 }
 
 android {
-    namespace = "com.example.sentryone"
+    namespace = "com.jatinkumar.sentryone"
     compileSdk = 35
     buildFeatures {
         viewBinding = true
     }
 
     defaultConfig {
-        applicationId = "com.example.sentryone"
+        applicationId = "com.jatinkumar.sentryone"
         minSdk = 28
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 5
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -53,35 +54,24 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-// Room (using KSP)
-    val roomVersion = "2.6.1" // Or use "2.7.0-alpha01" if you really need it and understand alpha stability
-    // For stable, 2.6.1 is the latest as of my last update.
-    // Check official docs for the absolute latest stable.
+    val roomVersion = "2.6.1"
     implementation("androidx.room:room-runtime:$roomVersion")
-    implementation("androidx.room:room-ktx:$roomVersion") // For Coroutines and Flow support
+    implementation("androidx.room:room-ktx:$roomVersion")
 
     ksp("androidx.room:room-compiler:$roomVersion")
-    // REMOVE: annotationProcessor("androidx.room:room-compiler:$room_version")
 
-    // Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3") // Use a recent stable version
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
-    // ViewModel & LiveData (Lifecycle)
-    val lifecycleVersion = "2.6.2" // Or a more recent stable version
+    val lifecycleVersion = "2.6.2"
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion")
-    // lifecycle-runtime-ktx is often included transitively by other lifecycle artifacts,
-    // but good to be explicit if you use LifecycleScope directly often.
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
 
 
-    // Fragment KTX (includes support for by viewModels(), etc.)
-    implementation("androidx.fragment:fragment-ktx:1.6.2") // Use a recent stable version
+    implementation("androidx.fragment:fragment-ktx:1.6.2")
 
-//    jetpack datastore dependency to store the app setting
     implementation("androidx.datastore:datastore-preferences:1.1.7")
 
-//    material component dependency
     implementation("com.google.android.material:material:1.14.0-alpha01")
 
 }

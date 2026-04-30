@@ -1,4 +1,4 @@
-package com.example.sentryone.Database
+package com.jatinkumar.sentryone.Database
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao

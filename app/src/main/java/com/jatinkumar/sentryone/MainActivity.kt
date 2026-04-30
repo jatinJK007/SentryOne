@@ -1,12 +1,12 @@
-package com.example.sentryone
+package com.jatinkumar.sentryone
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.example.sentryone.Fragments.ContactFragment
-import com.example.sentryone.Fragments.HistoryFragment
-import com.example.sentryone.Fragments.HomeFragment
-import com.example.sentryone.Fragments.SettingsFragment
+import com.jatinkumar.sentryone.Fragments.ContactFragment
+import com.jatinkumar.sentryone.Fragments.HistoryFragment
+import com.jatinkumar.sentryone.Fragments.HomeFragment
+import com.jatinkumar.sentryone.Fragments.SettingsFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {

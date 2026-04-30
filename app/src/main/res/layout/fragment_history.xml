@@ -11,7 +11,7 @@
         android:id="@+id/titleTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="26dp"
         android:fontFamily="@font/poppins_semibold"
         android:text="Alert History"
         android:textSize="20dp"
@@ -23,11 +23,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="26dp"
         android:rotation="180"
         android:src="@drawable/arrow_forward_ios_24px"
         app:layout_constraintEnd_toStartOf="@+id/titleTv"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.038"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

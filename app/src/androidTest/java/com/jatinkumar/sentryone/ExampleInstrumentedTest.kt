@@ -1,4 +1,4 @@
-package com.example.sentryone
+package com.jatinkumar.sentryone
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

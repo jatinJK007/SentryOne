@@ -1,9 +1,9 @@
-package com.example.sentryone
+package com.jatinkumar.sentryone
 
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.sentryone.viewModels.ContactsViewModel
+import com.jatinkumar.sentryone.viewModels.ContactsViewModel
 
 class ContactsViewModelFactory(
     private val application: Application
